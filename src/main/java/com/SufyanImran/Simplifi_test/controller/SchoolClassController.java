@@ -59,26 +59,20 @@ public class SchoolClassController {
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{id}/students")
+    @PutMapping("/{id}/students")
     @Operation(summary = "Add students to a class")
     public ResponseEntity<SchoolClass> addStudentsToClass(@PathVariable Long id, @RequestBody List<Long> studentIds) {
         SchoolClass updatedClass = classService.addStudentsToClass(id, studentIds);
         return ResponseEntity.ok(updatedClass);
     }
 
-    @PostMapping("/{id}/teachers")
+    @PutMapping("/{id}/teachers")
     @Operation(summary = "Add teachers to a class")
     public ResponseEntity<SchoolClass> addTeachersToClass(@PathVariable Long id, @RequestBody List<Long> teacherIds) {
         SchoolClass updatedClass = classService.addTeachersToClass(id, teacherIds);
         return ResponseEntity.ok(updatedClass);
     }
 
-    @PostMapping("/{id}/subjects")
-    @Operation(summary = "Add subjects to a class")
-    public ResponseEntity<SchoolClass> addSubjectsToClass(@PathVariable Long id, @RequestBody List<Long> subjectIds) {
-        SchoolClass updatedClass = classService.addSubjectsToClass(id, subjectIds);
-        return ResponseEntity.ok(updatedClass);
-    }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete class by ID")
