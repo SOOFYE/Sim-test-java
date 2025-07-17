@@ -3,6 +3,7 @@ package com.SufyanImran.Simplifi_test.service;
 import com.SufyanImran.Simplifi_test.model.Subject;
 import com.SufyanImran.Simplifi_test.model.Teacher;
 import com.SufyanImran.Simplifi_test.model.SchoolClass;
+import com.SufyanImran.Simplifi_test.service.TeacherService;
 import com.SufyanImran.Simplifi_test.repository.SubjectRepository;
 import com.SufyanImran.Simplifi_test.dto.SubjectDTO;
 import com.SufyanImran.Simplifi_test.util.PaginationUtil;
@@ -18,14 +19,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+
+
+
 @Service
 public class SubjectService {
 
     private final SubjectRepository subjectRepository;
+    private final TeacherService teacherService;
 
     @Autowired
-    public SubjectService(SubjectRepository subjectRepository) {
+    public SubjectService(SubjectRepository subjectRepository,  TeacherService teacherService) {
         this.subjectRepository = subjectRepository;
+         this.teacherService = teacherService;
     }
 
     public Subject createSubjectFromDTO(SubjectDTO dto) {
@@ -48,16 +56,28 @@ public class SubjectService {
         return subjectRepository.save(subject);
     }
 
+    @Transactional
+    public Subject assignTeachersToSubject(Long subjectId, List<Long> teacherIds) {
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new NoSuchElementException("Subject not found with id: " + subjectId));
+
+        Set<Teacher> teachers = teacherIds.stream()
+                .map(id -> teacherService.getTeacherById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Teacher not found with id: " + id)))
+                .collect(Collectors.toSet());
+
+        
+        subject.getTeachers().addAll(teachers);
+        for (Teacher teacher : teachers) {
+            teacher.getSubjects().add(subject);
+        }
+
+        return subjectRepository.save(subject);  
+    }
+
     public void deleteSubject(Long id) {
         subjectRepository.deleteById(id);
     }
 
 
-    @Transactional(readOnly = true)
-    public Page<SchoolClass> getClassesWithSubject(Long subjectId, Pageable pageable) {
-        return subjectRepository.findById(subjectId)
-                .map(Subject::getSchoolClasses)
-                .map(classes -> PaginationUtil.toPage(new ArrayList<>(classes), pageable))
-                .orElse(Page.empty());
-    }
 }

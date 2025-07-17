@@ -4,7 +4,6 @@ import com.SufyanImran.Simplifi_test.model.SchoolClass;
 import com.SufyanImran.Simplifi_test.model.Student;
 import com.SufyanImran.Simplifi_test.model.Teacher;
 import com.SufyanImran.Simplifi_test.model.Subject;
-import com.SufyanImran.Simplifi_test.service.SubjectService;
 import com.SufyanImran.Simplifi_test.service.TeacherService;
 import com.SufyanImran.Simplifi_test.service.StudentService;
 import com.SufyanImran.Simplifi_test.repository.SchoolClassRepository;
@@ -30,14 +29,12 @@ import java.util.HashSet;
 public class SchoolClassService {
 
     private final SchoolClassRepository classRepository;
-    private final SubjectService subjectService;
     private final TeacherService teacherService;
     private final StudentService studentService;
 
    @Autowired
-    public SchoolClassService(SchoolClassRepository classRepository,SubjectService subjectService,TeacherService teacherService, StudentService studentService) {
+    public SchoolClassService(SchoolClassRepository classRepository,TeacherService teacherService, StudentService studentService) {
         this.classRepository = classRepository;
-        this.subjectService = subjectService;
         this.teacherService = teacherService;
         this.studentService = studentService;
     }
@@ -90,29 +87,6 @@ public SchoolClass addTeachersToClass(Long classId, List<Long> teacherIds) {
     return classRepository.save(schoolClass);
 }
 
-@Transactional
-public SchoolClass addSubjectsToClass(Long classId, List<Long> subjectIds) {
-    SchoolClass schoolClass = classRepository.findById(classId)
-            .orElseThrow(() -> new NoSuchElementException("Class not found with id: " + classId));
-
-    Set<Subject> subjects = subjectIds.stream()
-            .map(subjectService::getSubjectById)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toSet());
-
-    if (subjects.isEmpty()) {
-        throw new IllegalArgumentException("No valid subjects found for IDs: " + subjectIds);
-    }
-
-
-    if (schoolClass.getSubjects() == null) {
-        schoolClass.setSubjects(new HashSet<>());
-    }
-
-    schoolClass.getSubjects().addAll(subjects);
-    return classRepository.save(schoolClass);
-}
 
 
     @Transactional(readOnly = true)

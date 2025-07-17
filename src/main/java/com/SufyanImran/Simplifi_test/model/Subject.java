@@ -14,8 +14,8 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"teachers", "schoolClasses"})
-@EqualsAndHashCode(exclude = {"teachers", "schoolClasses"})
+@ToString(exclude = {"teachers"})
+@EqualsAndHashCode(exclude = {"teachers"})
 @JsonIdentityInfo(
   generator = ObjectIdGenerators.PropertyGenerator.class,
   property = "id"
@@ -32,6 +32,4 @@ public class Subject {
     @ManyToMany(mappedBy = "subjects")
     private Set<Teacher> teachers;
 
-    @ManyToMany(mappedBy = "subjects")
-    private Set<SchoolClass> schoolClasses;
 }

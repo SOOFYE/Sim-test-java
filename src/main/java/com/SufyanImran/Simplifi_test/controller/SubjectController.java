@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/subjects")
 @Tag(name = "Subjects", description = "Operations related to subjects")
@@ -48,16 +50,19 @@ public class SubjectController {
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{id}/teachers")
+    @Operation(summary = "Assign teachers to a subject")
+    public ResponseEntity<Subject> assignTeachers(
+            @PathVariable Long id,
+            @RequestBody List<Long> teacherIds) {
+        Subject updated = subjectService.assignTeachersToSubject(id, teacherIds);
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a subject")
     public ResponseEntity<Void> deleteSubject(@PathVariable Long id) {
         subjectService.deleteSubject(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}/classes")
-    @Operation(summary = "Get classes with a subject")
-    public ResponseEntity<Page<SchoolClass>> getClassesWithSubject(@PathVariable Long id, @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(subjectService.getClassesWithSubject(id, pageable));
     }
 }
